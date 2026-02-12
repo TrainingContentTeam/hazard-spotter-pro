@@ -34,7 +34,7 @@ jobs:
           node-version: '20' # or '22', or lts; just match what works in Codespaces
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Vite app
         run: npm run build
