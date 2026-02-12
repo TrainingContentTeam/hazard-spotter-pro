@@ -135,16 +135,17 @@ const Index = () => {
                 label="items reviewed"
               />
 
-              <div className="flex flex-col lg:flex-row gap-4">
-                <div className="flex justify-center lg:justify-start w-full lg:w-2/5">
+              <div className="flex flex-col lg:flex-row gap-4 lg:items-start" style={{ maxHeight: 'calc(100vh - 320px)' }}>
+                <div className="w-full lg:w-2/5 h-full">
                   <HotspotImage
                     imageSrc={ppeImg}
                     imageAlt="Firefighter in full PPE gear"
                     hotspots={ppeHotspots}
                     foundIds={ppeFound}
                     onFind={handlePpeFind}
-                    aspectClass="aspect-auto"
-                    containerClass="[&>img]:object-contain [&>img]:h-auto"
+                    aspectClass="aspect-[3/4]"
+                    containerClass="max-h-[calc(100vh-320px)]"
+                    objectFit="contain"
                   />
                 </div>
                 <div className="w-full lg:w-3/5 flex flex-col justify-center">
