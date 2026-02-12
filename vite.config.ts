@@ -4,20 +4,22 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ // vite.config.js
-export default defineConfig(() => {
-  return {
-    base: '/',
-  };
-}); }) => ({
+export default defineConfig(({ mode }) => ({
+  base: mode === "production" ? "/hazard-spotter-pro/" : "/",
+
   server: {
-    host: "::",
+    host: true,
     port: 8080,
     hmr: {
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+
+  plugins: [
+    react(),
+    mode === "development" && componentTagger(),
+  ].filter(Boolean),
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
