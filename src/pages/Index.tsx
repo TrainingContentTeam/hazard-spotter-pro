@@ -9,7 +9,7 @@ import ppeImg from "@/assets/ppe-firefighter.jpg";
 type Tab = "scene" | "ppe";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<Tab>("scene");
+  const [activeTab, setActiveTab] = useState<Tab>("ppe");
   const [sceneFound, setSceneFound] = useState<Set<string>>(new Set());
   const [ppeFound, setPpeFound] = useState<Set<string>>(new Set());
   const [completionSent, setCompletionSent] = useState(false);
@@ -37,7 +37,7 @@ const Index = () => {
     setSceneFound(new Set());
     setPpeFound(new Set());
     setCompletionSent(false);
-    setActiveTab("scene");
+    setActiveTab("ppe");
   };
 
   const sceneDone = sceneFound.size === sceneHotspots.length;
@@ -68,16 +68,6 @@ const Index = () => {
       {/* Tabs */}
       <div className="max-w-7xl mx-auto w-full px-4 pt-3 sm:pt-4 flex gap-2">
         <button
-          onClick={() => setActiveTab("scene")}
-          className={`px-3 sm:px-4 py-2.5 rounded-t-lg font-semibold text-xs sm:text-sm transition-all
-            ${activeTab === "scene"
-              ? "bg-card text-primary border border-border border-b-0"
-              : "bg-secondary/50 text-muted-foreground"
-            }`}
-        >
-          Part 1: Fire Scene {sceneDone && "✅"}
-        </button>
-        <button
           onClick={() => setActiveTab("ppe")}
           className={`px-3 sm:px-4 py-2.5 rounded-t-lg font-semibold text-xs sm:text-sm transition-all
             ${activeTab === "ppe"
@@ -85,7 +75,17 @@ const Index = () => {
               : "bg-secondary/50 text-muted-foreground"
             }`}
         >
-          Part 2: PPE Inspection {ppeDone && "✅"}
+          Part 1: PPE Inspection {ppeDone && "✅"}
+        </button>
+        <button
+          onClick={() => setActiveTab("scene")}
+          className={`px-3 sm:px-4 py-2.5 rounded-t-lg font-semibold text-xs sm:text-sm transition-all
+            ${activeTab === "scene"
+              ? "bg-card text-primary border border-border border-b-0"
+              : "bg-secondary/50 text-muted-foreground"
+            }`}
+        >
+          Part 2: Fire Scene {sceneDone && "✅"}
         </button>
       </div>
 
