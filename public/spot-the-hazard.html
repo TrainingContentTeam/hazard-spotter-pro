@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Spot the Hazard — Firefighter Training</title>
+<meta name="description" content="Interactive firefighter training activity: identify hazards in a fire scene and inspect PPE gear."/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#001133;--fg:#f5e6b8;--card:#001a4d;--card-fg:#f5e6b8;
+  --primary:#d4a017;--primary-fg:#001133;
+  --secondary:#002266;--secondary-fg:#b8a570;
+  --muted:#002266;--muted-fg:#4a6080;
+  --border:#002266;--success:#4dd68e;--success-dim:rgba(77,214,142,0.2);
+  --radius:0.5rem;
+}
+html,body{
+  background:var(--bg);color:var(--fg);
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  height:100%;overflow:hidden;
+}
+#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* Header */
+header{border-bottom:1px solid var(--border);padding:12px 16px}
+.header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+header h1{font-size:1.5rem;font-weight:700;color:var(--primary)}
+header p{color:var(--muted-fg);font-size:0.85rem;margin-top:2px}
+.btn-restart{
+  background:var(--card);color:var(--card-fg);border:1px solid var(--border);
+  padding:8px 16px;border-radius:var(--radius);font-weight:600;font-size:0.85rem;cursor:pointer;
+}
+.btn-restart:hover{background:var(--secondary)}
+
+/* Tabs */
+.tabs{max-width:1280px;margin:0 auto;width:100%;padding:12px 16px 0;display:flex;gap:8px}
+.tab-btn{
+  padding:10px 16px;border-radius:var(--radius) var(--radius) 0 0;
+  font-weight:600;font-size:0.85rem;cursor:pointer;border:none;transition:all .2s;
+}
+.tab-btn.active{background:var(--card);color:var(--primary);border:1px solid var(--border);border-bottom:none}
+.tab-btn:not(.active){background:rgba(0,34,102,0.5);color:var(--muted-fg);border:1px solid transparent}
+
+/* Main */
+main{flex:1;max-width:1280px;margin:0 auto;width:100%;padding:0 16px 16px;overflow:hidden}
+.content-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:0 var(--radius) var(--radius) var(--radius);
+  padding:24px;height:100%;overflow-y:auto;
+}
+.panel{display:none}
+.panel.active{display:block}
+.panel h2{font-size:1.125rem;font-weight:700;color:var(--fg)}
+.panel .subtitle{color:var(--muted-fg);font-size:0.875rem;margin-bottom:12px}
+
+/* Progress */
+.progress-wrap{margin-bottom:16px}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:0.875rem}
+.progress-header .complete-tag{color:var(--success);font-weight:700}
+.progress-bar{width:100%;height:12px;background:var(--border);border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;border-radius:999px;transition:width .5s ease-out}
+.progress-fill.done{background:var(--success)}
+.progress-fill:not(.done){background:var(--primary)}
+
+/* Hotspot image container */
+.hotspot-container{position:relative;width:100%;overflow:hidden;border-radius:var(--radius);border:2px solid var(--border)}
+.hotspot-container img{width:100%;height:100%;display:block;user-select:none;pointer-events:none}
+.hotspot-container img.cover{object-fit:cover}
+.hotspot-container img.contain{object-fit:contain}
+.hotspot-btn{
+  position:absolute;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:1.25rem;cursor:pointer;transition:all .2s;border:none;
+}
+.hotspot-btn.found{border:2px solid var(--success);background:var(--success-dim);color:var(--success)}
+.hotspot-btn.hidden{border:none;background:transparent;color:transparent}
+
+/* Tooltip */
+.tooltip{
+  position:fixed;z-index:9999;max-width:340px;min-width:180px;
+  background:var(--card);border:1px solid rgba(212,160,23,0.4);
+  border-radius:var(--radius);padding:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.55);pointer-events:none;
+  transform:translate(-50%,-100%);animation:fadeIn .15s ease;
+}
+.tooltip .t-label{font-weight:800;color:var(--primary);font-size:0.875rem}
+.tooltip .t-desc{color:var(--card-fg);font-size:0.75rem;margin-top:6px;line-height:1.5}
+
+/* Checklist */
+.checklist{display:grid;gap:8px}
+.checklist.multi{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.checklist.single{grid-template-columns:1fr}
+.check-item{
+  display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--radius);
+  font-size:0.875rem;border:1px solid var(--border);min-height:38px;transition:all .2s;
+}
+.check-item.found{background:var(--success-dim);color:var(--success);border-color:rgba(77,214,142,0.3)}
+.check-item:not(.found){background:rgba(0,34,102,0.3);color:var(--muted-fg)}
+.check-item:not(.found) .item-label{opacity:0}
+
+/* PPE layout */
+.ppe-layout{display:flex;flex-direction:column;gap:16px}
+@media(min-width:1024px){
+  .ppe-layout{flex-direction:row;align-items:flex-start}
+  .ppe-img-wrap{width:40%}
+  .ppe-list-wrap{width:60%;display:flex;flex-direction:column;justify-content:center}
+}
+.ppe-img-wrap .hotspot-container{aspect-ratio:3/4;max-height:calc(100vh - 320px)}
+
+/* Scene layout */
+.scene-img-wrap .hotspot-container{aspect-ratio:1920/800}
+
+/* Completion */
+.completion{
+  margin-top:16px;padding:16px;border-radius:var(--radius);
+  background:var(--success-dim);border:1px solid rgba(77,214,142,0.3);text-align:center;
+  animation:fadeIn .25s ease;
+}
+.completion .big{color:var(--success);font-weight:800;font-size:1.125rem}
+.completion .sub{color:rgba(77,214,142,0.85);font-size:0.875rem;margin-top:4px}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>🔥 Spot the Hazard</h1>
+        <p>Identify all hazards to complete the activity</p>
+      </div>
+      <button class="btn-restart" onclick="restart()">↻ Restart</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-ppe" onclick="switchTab('ppe')">Part 1: PPE Inspection</button>
+    <button class="tab-btn" id="tab-scene" onclick="switchTab('scene')">Part 2: Fire Scene</button>
+  </div>
+
+  <main>
+    <div class="content-box">
+      <!-- PPE Panel -->
+      <div class="panel active" id="panel-ppe">
+        <h2>PPE &amp; SCBA Inspection</h2>
+        <p class="subtitle">Click (or tap) each piece of gear. Review all <span id="ppe-total-label"></span> items.</p>
+        <div class="progress-wrap">
+          <div class="progress-header">
+            <span id="ppe-count"></span>
+            <span class="complete-tag" id="ppe-done-tag" style="display:none">✅ Complete!</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="ppe-bar"></div></div>
+        </div>
+        <div class="ppe-layout">
+          <div class="ppe-img-wrap">
+            <div class="hotspot-container" id="ppe-image-container">
+              <!-- Image injected by JS -->
+            </div>
+          </div>
+          <div class="ppe-list-wrap">
+            <div class="checklist single" id="ppe-checklist"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene Panel -->
+      <div class="panel" id="panel-scene">
+        <h2>Fire Scene Hazards</h2>
+        <p class="subtitle">Click on the hazard areas in the image. Find all <span id="scene-total-label"></span> hazards.</p>
+        <div class="progress-wrap">
+          <div class="progress-header">
+            <span id="scene-count"></span>
+            <span class="complete-tag" id="scene-done-tag" style="display:none">✅ Complete!</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="scene-bar"></div></div>
+        </div>
+        <div class="scene-img-wrap" style="margin-bottom:16px">
+          <div class="hotspot-container" id="scene-image-container">
+            <!-- Image injected by JS -->
+          </div>
+        </div>
+        <div class="checklist multi" id="scene-checklist"></div>
+      </div>
+
+      <!-- Completion Banner -->
+      <div class="completion" id="completion-banner" style="display:none">
+        <p class="big">🎉 All Hazards Identified!</p>
+        <p class="sub">You've successfully completed both parts of the activity.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="tooltip" id="tooltip" style="display:none">
+  <div class="t-label" id="tooltip-label"></div>
+  <div class="t-desc" id="tooltip-desc"></div>
+</div>
+
+<script>
+/* ── Data ── */
+var sceneHotspots = [
+  {id:"apparatus",label:"Apparatus",desc:"Noise, vehicle movement, and backing hazards. Always maintain awareness of apparatus positioning and movement on scene.",x:2,y:30,w:20,h:55},
+  {id:"smoke",label:"Smoke",desc:"Inhalation hazard. Always ensure proper use of SCBA before entering the hazard zone. Smoke contains toxic gases including carbon monoxide and hydrogen cyanide.",x:25,y:0,w:50,h:35},
+  {id:"structure",label:"Involved Structure",desc:"Burn and other injury risks. Ensure proper use of PPE at all times. Watch for signs of structural collapse, falling debris, and flashover conditions.",x:25,y:20,w:50,h:50},
+  {id:"hose",label:"Hose on Ground",desc:"Trip hazard. Charged hose lines on the ground create significant trip hazards. Be aware of hose placement and step over carefully.",x:5,y:80,w:90,h:18}
+];
+var ppeHotspots = [
+  {id:"helmet",label:"Helmet",desc:"Helmet meets NFPA standard and chin strap is in place. Check for cracks, heat damage, and ensure face shield/goggles are functional.",x:30,y:0,w:40,h:14},
+  {id:"scba-mask",label:"SCBA Facepiece",desc:"Facepiece properly fitted with no lens damage. Seal has no dry rot, tears, or other damage. Perform positive/negative pressure checks.",x:30,y:13,w:40,h:12},
+  {id:"coat-seams",label:"Turnout Coat",desc:"Seams not split, stitching not frayed. No rips, tears, or damage to shell. Reflective trim must be intact and visible.",x:15,y:25,w:70,h:18},
+  {id:"vapor-barrier",label:"Vapor Barrier & Closures",desc:"Vapor barrier intact with no damage. Zippers, Velcro, and other closures operate properly. Check thermal liner is properly attached.",x:20,y:42,w:60,h:10},
+  {id:"gloves",label:"Gloves",desc:"Gloves are NFPA-compliant for structural firefighting, fit properly, and are undamaged.",x:10,y:48,w:25,h:10},
+  {id:"pants",label:"Turnout Pants",desc:"Seams not split, stitching not frayed. No rips, tears, damage to shell. Suspenders secure and knee pads in place.",x:20,y:55,w:60,h:22},
+  {id:"boots",label:"Boots",desc:"Boots are NFPA-compliant and free of damage. Tread is sufficient to prevent slipping.",x:20,y:82,w:60,h:18}
+];
+
+/* ── State ── */
+var sceneFound = {};
+var ppeFound = {};
+var activeTab = "ppe";
+var tooltipTimer = null;
+var completionSent = false;
+
+/* ── IMAGE PATHS ── */
+/* IMPORTANT: Replace these with the actual paths to your images */
+var FIRE_SCENE_IMG = "fire-scene.jpg";
+var PPE_IMG = "ppe-firefighter.jpg";
+
+/* ── Init ── */
+function init(){
+  document.getElementById("ppe-total-label").textContent = ppeHotspots.length;
+  document.getElementById("scene-total-label").textContent = sceneHotspots.length;
+  buildImageArea("ppe-image-container", PPE_IMG, "Firefighter in full PPE gear", ppeHotspots, "ppe", "contain");
+  buildImageArea("scene-image-container", FIRE_SCENE_IMG, "Fire scene with hazards", sceneHotspots, "scene", "cover");
+  buildChecklist("ppe-checklist", ppeHotspots, "ppe");
+  buildChecklist("scene-checklist", sceneHotspots, "scene");
+  updateUI();
+}
+
+function buildImageArea(containerId, src, alt, hotspots, group, fit){
+  var c = document.getElementById(containerId);
+  var img = document.createElement("img");
+  img.src = src; img.alt = alt; img.draggable = false;
+  img.className = fit;
+  c.appendChild(img);
+  hotspots.forEach(function(h){
+    var btn = document.createElement("button");
+    btn.className = "hotspot-btn hidden";
+    btn.id = "btn-" + group + "-" + h.id;
+    btn.style.left = h.x + "%";
+    btn.style.top = h.y + "%";
+    btn.style.width = h.w + "%";
+    btn.style.height = h.h + "%";
+    btn.setAttribute("aria-label", "Hotspot: " + h.label);
+    btn.textContent = "?";
+    btn.onclick = function(e){ handleClick(group, h, e); };
+    c.appendChild(btn);
+  });
+}
+
+function buildChecklist(containerId, hotspots, group){
+  var c = document.getElementById(containerId);
+  c.innerHTML = "";
+  hotspots.forEach(function(h){
+    var div = document.createElement("div");
+    div.className = "check-item";
+    div.id = "chk-" + group + "-" + h.id;
+    div.innerHTML = '<span class="item-icon">○</span><span class="item-label">' + h.label + '</span>';
+    c.appendChild(div);
+  });
+}
+
+/* ── Interactions ── */
+function handleClick(group, h, e){
+  var foundMap = group === "ppe" ? ppeFound : sceneFound;
+  foundMap[h.id] = true;
+  updateUI();
+  showTooltip(h, e);
+}
+
+function showTooltip(h, e){
+  var tt = document.getElementById("tooltip");
+  document.getElementById("tooltip-label").textContent = h.label;
+  document.getElementById("tooltip-desc").textContent = h.desc;
+  var rect = e.currentTarget.getBoundingClientRect();
+  var x = rect.left + rect.width / 2;
+  var y = rect.top;
+  tt.style.display = "block";
+  tt.style.left = x + "px";
+  tt.style.top = (y - 10) + "px";
+  // Adjust to viewport
+  requestAnimationFrame(function(){
+    var r = tt.getBoundingClientRect();
+    var nx = Math.max(12 + r.width/2, Math.min(window.innerWidth - 12 - r.width/2, x));
+    var ny = Math.max(12 + r.height, y - 10);
+    tt.style.left = nx + "px";
+    tt.style.top = ny + "px";
+  });
+  clearTimeout(tooltipTimer);
+  tooltipTimer = setTimeout(function(){ tt.style.display = "none"; }, 3500);
+}
+
+/* ── UI Update ── */
+function updateUI(){
+  var sf = Object.keys(sceneFound).length;
+  var pf = Object.keys(ppeFound).length;
+  var st = sceneHotspots.length;
+  var pt = ppeHotspots.length;
+
+  // Progress bars
+  updateProgress("ppe", pf, pt);
+  updateProgress("scene", sf, st);
+
+  // Hotspot buttons
+  updateButtons("ppe", ppeHotspots, ppeFound);
+  updateButtons("scene", sceneHotspots, sceneFound);
+
+  // Checklists
+  updateChecklist("ppe", ppeHotspots, ppeFound);
+  updateChecklist("scene", sceneHotspots, sceneFound);
+
+  // Tab labels
+  document.getElementById("tab-ppe").textContent = "Part 1: PPE Inspection" + (pf === pt ? " ✅" : "");
+  document.getElementById("tab-scene").textContent = "Part 2: Fire Scene" + (sf === st ? " ✅" : "");
+
+  // Completion
+  var allDone = sf === st && pf === pt;
+  document.getElementById("completion-banner").style.display = allDone ? "block" : "none";
+  if(allDone && !completionSent){
+    completionSent = true;
+    try{ window.parent.postMessage({type:"complete"}, "*"); }catch(e){}
+  }
+}
+
+function updateProgress(group, found, total){
+  var pct = total ? (found/total)*100 : 0;
+  var done = found === total;
+  document.getElementById(group+"-count").textContent = found + " / " + total + (group==="ppe"?" items reviewed":" hazards found");
+  document.getElementById(group+"-done-tag").style.display = done ? "inline" : "none";
+  var bar = document.getElementById(group+"-bar");
+  bar.style.width = pct + "%";
+  bar.className = "progress-fill" + (done ? " done" : "");
+}
+
+function updateButtons(group, hotspots, foundMap){
+  hotspots.forEach(function(h){
+    var btn = document.getElementById("btn-"+group+"-"+h.id);
+    if(foundMap[h.id]){
+      btn.className = "hotspot-btn found";
+      btn.textContent = "✓";
+    } else {
+      btn.className = "hotspot-btn hidden";
+      btn.textContent = "?";
+    }
+  });
+}
+
+function updateChecklist(group, hotspots, foundMap){
+  hotspots.forEach(function(h){
+    var el = document.getElementById("chk-"+group+"-"+h.id);
+    if(foundMap[h.id]){
+      el.className = "check-item found";
+      el.querySelector(".item-icon").textContent = "✓";
+    } else {
+      el.className = "check-item";
+      el.querySelector(".item-icon").textContent = "○";
+    }
+  });
+}
+
+/* ── Tabs ── */
+function switchTab(tab){
+  activeTab = tab;
+  document.getElementById("panel-ppe").className = "panel" + (tab==="ppe"?" active":"");
+  document.getElementById("panel-scene").className = "panel" + (tab==="scene"?" active":"");
+  document.getElementById("tab-ppe").className = "tab-btn" + (tab==="ppe"?" active":"");
+  document.getElementById("tab-scene").className = "tab-btn" + (tab==="scene"?" active":"");
+}
+
+/* ── Restart ── */
+function restart(){
+  sceneFound = {};
+  ppeFound = {};
+  completionSent = false;
+  switchTab("ppe");
+  updateUI();
+  document.getElementById("tooltip").style.display = "none";
+}
+
+init();
+</script>
+</body>
+</html>
