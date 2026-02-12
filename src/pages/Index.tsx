@@ -91,7 +91,7 @@ const Index = () => {
 
       {/* Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 pb-4 overflow-hidden">
-        <div className="bg-card border border-border rounded-b-lg rounded-tr-lg p-4 sm:p-6 h-full overflow-y-auto">
+        <div className="bg-card border border-border rounded-b-lg rounded-tr-lg p-4 sm:p-6 h-full overflow-hidden">
           {/* Scene Panel */}
           {activeTab === "scene" && (
             <div>
@@ -135,21 +135,24 @@ const Index = () => {
                 label="items reviewed"
               />
 
-              <div className="mb-4 flex justify-center">
-                <div className="w-full max-w-[420px]">
-                  <HotspotImage
-                    imageSrc={ppeImg}
-                    imageAlt="Firefighter in full PPE gear"
-                    hotspots={ppeHotspots}
-                    foundIds={ppeFound}
-                    onFind={handlePpeFind}
-                    aspectClass="aspect-auto"
-                    containerClass="[&>img]:object-contain [&>img]:h-auto"
-                  />
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex justify-center lg:justify-start shrink-0">
+                  <div className="w-full max-w-[320px]">
+                    <HotspotImage
+                      imageSrc={ppeImg}
+                      imageAlt="Firefighter in full PPE gear"
+                      hotspots={ppeHotspots}
+                      foundIds={ppeFound}
+                      onFind={handlePpeFind}
+                      aspectClass="aspect-auto"
+                      containerClass="[&>img]:object-contain [&>img]:h-auto"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <Checklist hotspots={ppeHotspots} foundIds={ppeFound} columns="single" />
                 </div>
               </div>
-
-              <Checklist hotspots={ppeHotspots} foundIds={ppeFound} />
             </div>
           )}
 

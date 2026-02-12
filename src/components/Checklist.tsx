@@ -3,11 +3,12 @@ import type { HotspotData } from "@/data/hotspots";
 interface ChecklistProps {
   hotspots: HotspotData[];
   foundIds: Set<string>;
+  columns?: "single" | "multi";
 }
 
-export default function Checklist({ hotspots, foundIds }: ChecklistProps) {
+export default function Checklist({ hotspots, foundIds, columns = "multi" }: ChecklistProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+    <div className={`grid gap-2 ${columns === "single" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
       {hotspots.map((h) => {
         const isFound = foundIds.has(h.id);
         return (
