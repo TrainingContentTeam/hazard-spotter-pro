@@ -41,16 +41,16 @@ jobs:
 
       - name: Copy standalone files to dist
         run: |
-          cp spot-the-hazard.html dist/
-          cp fire-scene.jpg dist/
-          cp ppe-firefighter.jpg dist/
-          touch dist/.nojekyll
+          cp spot-the-hazard.html docs/
+          cp fire-scene.jpg docs/
+          cp ppe-firefighter.jpg docs/
+          touch docs/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload the *built* site
-          path: 'dist'
+          path: 'docs'
 
   deploy:
     needs: build
