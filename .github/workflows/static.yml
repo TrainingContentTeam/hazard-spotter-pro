@@ -39,9 +39,12 @@ jobs:
       - name: Build Vite app
         run: npm run build
 
-      # Optional but nice: make sure Jekyll doesn't interfere
-      - name: Disable Jekyll
-        run: touch dist/.nojekyll
+      - name: Copy standalone files to dist
+        run: |
+          cp spot-the-hazard.html dist/
+          cp fire-scene.jpg dist/
+          cp ppe-firefighter.jpg dist/
+          touch dist/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
