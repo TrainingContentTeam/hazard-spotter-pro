@@ -136,7 +136,7 @@ const Index = () => {
               />
 
               <div className="flex flex-col lg:flex-row gap-4">
-                <div className="flex justify-center lg:justify-start w-full lg:w-1/2">
+                <div className="flex justify-center lg:justify-start w-full lg:w-2/5">
                   <HotspotImage
                     imageSrc={ppeImg}
                     imageAlt="Firefighter in full PPE gear"
@@ -147,7 +147,7 @@ const Index = () => {
                     containerClass="[&>img]:object-contain [&>img]:h-auto"
                   />
                 </div>
-                <div className="w-full lg:w-1/2 flex flex-col justify-center">
+                <div className="w-full lg:w-3/5 flex flex-col justify-center">
                   <Checklist hotspots={ppeHotspots} foundIds={ppeFound} columns="single" />
                 </div>
               </div>
