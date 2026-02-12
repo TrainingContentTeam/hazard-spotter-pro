@@ -16,6 +16,7 @@ interface HotspotImageProps {
   onFind: (id: string) => void;
   aspectClass?: string;
   containerClass?: string;
+  objectFit?: "cover" | "contain";
 }
 
 export default function HotspotImage({
@@ -26,6 +27,7 @@ export default function HotspotImage({
   onFind,
   aspectClass = "aspect-[1920/800]",
   containerClass = "",
+  objectFit = "cover",
 }: HotspotImageProps) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -73,7 +75,7 @@ export default function HotspotImage({
       <img
         src={imageSrc}
         alt={imageAlt}
-        className="w-full h-full object-cover select-none pointer-events-none"
+        className={`w-full h-full select-none pointer-events-none ${objectFit === "contain" ? "object-contain" : "object-cover"}`}
         draggable={false}
       />
 
