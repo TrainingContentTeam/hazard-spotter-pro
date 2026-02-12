@@ -136,20 +136,18 @@ const Index = () => {
               />
 
               <div className="flex flex-col lg:flex-row gap-4">
-                <div className="flex justify-center lg:justify-start shrink-0">
-                  <div className="w-full max-w-[320px]">
-                    <HotspotImage
-                      imageSrc={ppeImg}
-                      imageAlt="Firefighter in full PPE gear"
-                      hotspots={ppeHotspots}
-                      foundIds={ppeFound}
-                      onFind={handlePpeFind}
-                      aspectClass="aspect-auto"
-                      containerClass="[&>img]:object-contain [&>img]:h-auto"
-                    />
-                  </div>
+                <div className="flex justify-center lg:justify-start w-full lg:w-1/2">
+                  <HotspotImage
+                    imageSrc={ppeImg}
+                    imageAlt="Firefighter in full PPE gear"
+                    hotspots={ppeHotspots}
+                    foundIds={ppeFound}
+                    onFind={handlePpeFind}
+                    aspectClass="aspect-auto"
+                    containerClass="[&>img]:object-contain [&>img]:h-auto"
+                  />
                 </div>
-                <div className="flex-1">
+                <div className="w-full lg:w-1/2 flex flex-col justify-center">
                   <Checklist hotspots={ppeHotspots} foundIds={ppeFound} columns="single" />
                 </div>
               </div>
